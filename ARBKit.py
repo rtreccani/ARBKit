@@ -3,21 +3,23 @@ import click
 
 #overarching group to define the entrypoint of the program and placehold for the sub-commands defined below
 @click.group()
+@click.version_option()
 #no args, params, etc.. no content either. placeholder.
 def cli():
     pass 
 
 #click setup for load command, mandatory filename arguement. 
 @cli.command()
-@click.argument('filename')
-def load(filename):
-    click.echo('loading the file: ' + str(filename))
+@click.argument('file', type=click.Path(exists=True))
+def load(file):
+    click.echo("loading " + click.format_filename(file))
 
 #click setup for play command, optional delay value
 @cli.command()
+@click.option('--mode', default='oneshot', type=click.Choice(['oneshot', 'loopn', 'loopinf'], case_sensitive=False))
 @click.option('--delay', default=0.0, help='time between command and playback beginning')
-def play(delay):
-    click.echo('playing with delay '+str(delay))
+def play(delay, mode):
+    click.echo('playing with delay '+str(delay) + " mode " + str(mode))
 
 #click pause command
 @cli.command()
