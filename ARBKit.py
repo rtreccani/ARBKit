@@ -3,12 +3,17 @@ import click
 import os 
 import time
 
+
 #overarching group to define the entrypoint of the program and placehold for the sub-commands defined below
 @click.group()
-@click.version_option()
+@click.version_option() #allows for --version to return auto-extracted info from setuptools 
 #no args, params, etc.. no content either. placeholder.
 def cli():
-    pass 
+    pass #modern day equivalent of goto but whatever
+
+#click setup for start command to spin up a serial manager process 
+@cli.command
+def startDaemon()
 
 #click setup for load command, mandatory filename arguement. 
 @cli.command()
@@ -34,7 +39,7 @@ def load(filename):
 @click.option('--mode', '-m', default='oneshot', type=click.Choice(['oneshot', 'loopn', 'loopinf'], case_sensitive=False))
 @click.option('--delay', '-d', default=0, help='time between command and playback beginning')
 def play(delay, mode):
-    if(delay != 0):
+    if(delay != 0): #only print delay if it's meaningful
         click.echo("delay = " + str(delay))
     click.echo("mode = " + str(mode))
     click.echo("playing")
