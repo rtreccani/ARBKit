@@ -1,3 +1,5 @@
 ARBKit.egg-info/*
 __pycache__/*
 .vscode*
+arbkit_venv/*
+*.code-workspace
