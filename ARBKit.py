@@ -2,6 +2,14 @@
 import click
 import os 
 import time
+import multiprocessing
+
+def thread_1():
+    serProc = multiprocessing.current_process()
+    print('i am ',serProc.name, serProc.pid)
+    while True:
+        print("i am a thread")
+        time.sleep(3)
 
 
 #overarching group to define the entrypoint of the program and placehold for the sub-commands defined below
@@ -12,8 +20,12 @@ def cli():
     pass #modern day equivalent of goto but whatever
 
 #click setup for start command to spin up a serial manager process 
-@cli.command
-def startDaemon()
+@cli.command()
+def startd():
+    serDaemon = multiprocessing.Process(name='serDaemon', target=thread_1)
+    serDaemon.daemon=True
+    serDaemon.start()
+
 
 #click setup for load command, mandatory filename arguement. 
 @cli.command()
@@ -49,6 +61,7 @@ def play(delay, mode):
 def pause():
     click.echo('pausing playback')
 
+
 #click connect, mandatory port, optional baud rate. 
 @cli.command()
 @click.argument('port')
@@ -63,4 +76,6 @@ cli.add_command(play)
 cli.add_command(pause)
 cli.add_command(connect)
 
-#setuptools takes care of the entrypoint stuff.
+
+#setuptools takes care of the entrypoint stuff
+
