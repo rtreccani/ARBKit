@@ -1,0 +1,25 @@
+Metadata-Version: 2.0
+Name: daemoniker
+Version: 0.2.3
+Summary: Cross-platform daemonization tools.
+Home-page: https://github.com/Muterra/py_daemoniker
+Author: Muterra, Inc
+Author-email: badg@muterra.io
+License: LGPL
+Keywords: daemon,daemonize,daemonic,signals
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development
+Classifier: Topic :: Utilities
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Provides-Extra: dev
+Provides-Extra: test
+Requires-Dist: psutil; extra == 'test'
+
+Daemoniker provides a cross-platform (including Windows),
+pure-Python API for creating daemons and communicating with them
+via signals and signal handlers.
+
