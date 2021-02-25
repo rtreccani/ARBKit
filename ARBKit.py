@@ -1,15 +1,14 @@
 #click library for defining CLI options and arguements etc..
 import click
-import os 
+import os, signal, sys
 import time
-import multiprocessing
+import daemon
+import threading
+from time import sleep
+import Pyro5.api
 
-def thread_1():
-    serProc = multiprocessing.current_process()
-    print('i am ',serProc.name, serProc.pid)
-    while True:
-        print("i am a thread")
-        time.sleep(3)
+from ARBKit_pyro import startDaemon
+
 
 
 #overarching group to define the entrypoint of the program and placehold for the sub-commands defined below
@@ -18,14 +17,31 @@ def thread_1():
 #no args, params, etc.. no content either. placeholder.
 def cli():
     pass #modern day equivalent of goto but whatever
+        
 
-#click setup for start command to spin up a serial manager process 
+#click setup for start command to spin up both the nameserver and backend
 @cli.command()
 def startd():
-    serDaemon = multiprocessing.Process(name='serDaemon', target=thread_1)
-    serDaemon.daemon=True
-    serDaemon.start()
+    with daemon.DaemonContext():
+        startDaemon()
 
+@cli.command()
+def isd():
+    daemon = Pyro5.api.Proxy("PYRO:ARBKit_StaticDaemonAddr@localhost:49123")
+    ret = daemon.heartbeat("PING")
+    if(ret == "PONG"):
+        click.echo("found the daemon and he said PONG")
+    else:
+        print(ret)
+
+
+
+
+#click setup stop command, kill nameserver and backend
+@cli.command()
+def stopd():
+    daemon = Pyro5.api.Proxy("PYRO:ARBKit_StaticDaemonAddr@localhost:49123")
+    daemon.seppuku()
 
 #click setup for load command, mandatory filename arguement. 
 @cli.command()
@@ -75,6 +91,9 @@ cli.add_command(load)
 cli.add_command(play)
 cli.add_command(pause)
 cli.add_command(connect)
+cli.add_command(startd)
+cli.add_command(stopd)
+cli.add_command(isd)
 
 
 #setuptools takes care of the entrypoint stuff
