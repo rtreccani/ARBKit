@@ -1,9 +1,7 @@
 #click library for defining CLI options and arguements etc..
 import click
 import os, signal, sys
-import time
-import daemon
-from subprocess import Popen
+import daemon, daemon.pidfile
 from time import sleep
 import Pyro5.api
 import Pyro5.errors
@@ -22,16 +20,8 @@ def cli():
 #click setup for start command to spin up both the nameserver and backend
 @cli.command()
 def startd():
-    try:
-        daemon = Pyro5.api.Proxy("PYRO:ARBKit_StaticDaemonAddr@localhost:49123")
-        ret = daemon.heartbeat("PING")
-        if(ret != "PONG"):
-            click.echo("daemon not responding corretly")
-
-    except Exception:
-        print("unable to connect to daemon")
-        with daemon.DaemonContext():
-            startDaemon()
+    with daemon.DaemonContext():
+        startDaemon()
 
 @cli.command()
 def isd():
