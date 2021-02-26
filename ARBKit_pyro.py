@@ -1,21 +1,34 @@
 import Pyro5.api
-import os
+import os, sys
 
-@Pyro5.api.expose
+
+@Pyro5.api.expose #expose the entire object to the pyro api
 class ARBKitSpinner(object):
-    def heartbeat(self, msg):
+    _must_shutdown = False
+    def heartbeat(self, msg): #heartbeat. if it sees PING, it returns PONG
         if(msg == "PING"):
             return("PONG")
         else:
-            exit()
-    
-    @Pyro5.server.oneway
-    def seppuku(self):
-        os.kill(os.getpid())
+            pass #eventually call seppuku from here once seppuku works
+
+    @Pyro5.server.oneway #prevents the calling function waiting for an answer
+    def kill(self): #called to stop the daemon
+        print("attempting seppuku")
+        self._must_shutdown = True
+        print('i tried everything boss')
 
 
+#calling function that starts the ARBKitSpinner daemon class
 def startDaemon():
-    daemon = Pyro5.server.Daemon(port=49123) 
-    uri = daemon.register(ARBKitSpinner, objectId="ARBKit_StaticDaemonAddr")
+    daemon = Pyro5.server.Daemon(port=49123) #listen on the port 49123
+    a = ARBKitSpinner()
+    #use a static name which removes the need for a nameserver. cheap and easy
+    uri = daemon.register(a, objectId="ARBKit_StaticDaemonAddr")
     print(uri)
-    daemon.requestLoop()
+    #spin on the daemon
+    daemon.requestLoop(loopCondition=lambda: not a._must_shutdown)
+    #exit the program??
+    exit()
+
+if __name__ == "__main__":
+    startDaemon()

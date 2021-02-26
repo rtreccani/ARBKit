@@ -3,10 +3,10 @@ import click
 import os, signal, sys
 import time
 import daemon
-import threading
+from subprocess import Popen
 from time import sleep
 import Pyro5.api
-
+import Pyro5.errors
 from ARBKit_pyro import startDaemon
 
 
@@ -22,26 +22,37 @@ def cli():
 #click setup for start command to spin up both the nameserver and backend
 @cli.command()
 def startd():
-    with daemon.DaemonContext():
-        startDaemon()
+    try:
+        daemon = Pyro5.api.Proxy("PYRO:ARBKit_StaticDaemonAddr@localhost:49123")
+        ret = daemon.heartbeat("PING")
+        if(ret != "PONG"):
+            click.echo("daemon not responding corretly")
+
+    except Exception:
+        print("unable to connect to daemon")
+        with daemon.DaemonContext():
+            startDaemon()
 
 @cli.command()
 def isd():
-    daemon = Pyro5.api.Proxy("PYRO:ARBKit_StaticDaemonAddr@localhost:49123")
-    ret = daemon.heartbeat("PING")
-    if(ret == "PONG"):
-        click.echo("found the daemon and he said PONG")
-    else:
-        print(ret)
-
-
+    try:
+        daemon = Pyro5.api.Proxy("PYRO:ARBKit_StaticDaemonAddr@localhost:49123")
+        ret = daemon.heartbeat("PING")
+        if(ret == "PONG"):
+            click.echo("found the daemon and he said PONG")
+        else:
+            print(ret)
+    except Exception:
+        print("unable to connect to daemon")
 
 
 #click setup stop command, kill nameserver and backend
 @cli.command()
 def stopd():
     daemon = Pyro5.api.Proxy("PYRO:ARBKit_StaticDaemonAddr@localhost:49123")
-    daemon.seppuku()
+    daemon.kill()
+
+
 
 #click setup for load command, mandatory filename arguement. 
 @cli.command()
@@ -97,4 +108,3 @@ cli.add_command(isd)
 
 
 #setuptools takes care of the entrypoint stuff
-
