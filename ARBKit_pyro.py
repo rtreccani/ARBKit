@@ -1,21 +1,36 @@
 import Pyro5.api
 import os, sys
+from time import sleep
+import serial
 
 
 @Pyro5.api.expose #expose the entire object to the pyro api
 class ARBKitSpinner(object):
     _must_shutdown = False
+    ser = serial.Serial()
+
+
     def heartbeat(self, msg): #heartbeat. if it sees PING, it returns PONG
         if(msg == "PING"):
             return("PONG")
         else:
             pass #eventually call seppuku from here once seppuku works
 
+
     @Pyro5.server.oneway #prevents the calling function waiting for an answer
     def kill(self): #called to stop the daemon
-        print("attempting seppuku")
         self._must_shutdown = True
-        print('i tried everything boss')
+    
+
+    def connect(self,port, baud):
+        self.ser.port = port
+        self.ser.baud = baud
+        try:
+            self.ser.open()
+            return(True)
+        except Exception as e:
+            return(False)
+        
 
 
 #calling function that starts the ARBKitSpinner daemon class

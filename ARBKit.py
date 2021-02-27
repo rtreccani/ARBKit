@@ -84,7 +84,16 @@ def pause():
 @click.argument('port')
 @click.option('--baud', '-b', default=115200, help='bit rate to communicate at')
 def connect(port, baud):
-    click.echo('connecting to port '+str(port)+' at baud '+str(baud))
+    try:
+        click.echo('connecting to port '+str(port)+' at baud '+str(baud))
+        daemon = Pyro5.api.Proxy("PYRO:ARBKit_StaticDaemonAddr@localhost:49123")
+        success = daemon.connect(port,baud)
+        if(success):
+            click.echo("successfully opened port")
+        else:
+            click.echo("failed to open port")
+    except Exception as e:
+        print(e)
 
 
 #add all the commands to the overarching group. 
